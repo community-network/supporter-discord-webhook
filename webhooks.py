@@ -1,20 +1,23 @@
-import flask
+import asyncio
 import json
 import requests
-from flask import Flask
-app = Flask(__name__)
+from quart import Quart
+from hypercorn.config import Config
+from hypercorn.asyncio import serve
+from quart import request
 
+app = Quart(__name__)
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    webhook_id = flask.request.args.get("webhook_id")
-    webhook_auth = flask.request.args.get("webhook_auth")
+    webhook_id = request.args.get("webhook_id")
+    webhook_auth = request.args.get("webhook_auth")
 
-    color = flask.request.args.get("color")
+    color = request.args.get("color")
     if color is None:
         color = 222934
 
-    data = json.loads(flask.request.data.decode())
+    data = request.get_json()
     try:
         if data["action"] == "created":
             sponsorship = data["sponsorship"]
@@ -24,33 +27,41 @@ def webhook():
             supporter_url_html = sponsorship["sponsor"]["html_url"]
             supporter_icon = sponsorship["sponsor"]["avatar_url"]
             webhook_send_json = {
-              "embeds": [
-                {
-                  "description": f"{tier_description}",
-                  "color": color,
-                  "author": {
-                    "name": f"{username} just sponsored for ${price_in_dollars}",
-                    "url": f"{supporter_url_html}",
-                    "icon_url": f"{supporter_icon}"
-                  },
-                  "footer": {
-                    "text": "Thank you for supporting me, it really helps out"
-                  }
-                }
-              ]
+                "embeds": [
+                    {
+                        "description": f"{tier_description}",
+                        "color": color,
+                        "author": {
+                            "name": f"{username} just sponsored for ${price_in_dollars}",
+                            "url": f"{supporter_url_html}",
+                            "icon_url": f"{supporter_icon}"
+                        },
+                        "footer": {
+                            "text": "Thank you for supporting us, it really helps out"
+                        }
+                    }
+                ]
             }
             requests.post(f"https://discord.com/api/webhooks/{webhook_id}/{webhook_auth}", json=webhook_send_json)
             return "Successfully sent webhook to discord!"
     except Exception as e:
         if data["hook"]["type"] == "SponsorsListing":
             send_json = {
-                "content": "Github sponsor webhooks have now been added. Thanks for using my repo, starring it would mean to world to me and really helps out. "
+                "content": "Github sponsor webhooks have now been added."
             }
             requests.post(f"https://discord.com/api/webhooks/{webhook_id}/{webhook_auth}", json=send_json)
-            return "Setup complete! You will now receive notifications when someone supports you on github! <b>MORE FEATURES ARE COMING SOON</b>"
+            return "Setup complete! You will now receive notifications when someone supports you on github!"
         else:
             return e
 
 
+@app.route("/")
+def health_check():
+    return {"status": "ok"}
+
 if __name__ == "__main__":
-    app.run(host="localhost", port="8084")
+    config = Config.from_mapping(
+            bind="0.0.0.0:80",
+            statsd_host="0.0.0.0:80",
+        )
+    asyncio.run(serve(app, config))

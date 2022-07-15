@@ -20,6 +20,3 @@ Your embed will look like this but the icon and title will change for the price 
 `Foo` will also change to the description of your package. __More customizations coming soon__. 
 
 ![webhook_discord](Images/webhook_discord.png)
-
-# Please note
-~~This is an idea and is a wip. Please check back to see progress or join my discord server to be announced when this goes live [here](https://julians.work/cum)~~
