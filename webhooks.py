@@ -1,6 +1,6 @@
 import asyncio
 import json
-import requests
+import aiohttp
 from quart import Quart
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
@@ -9,7 +9,7 @@ from quart import request
 app = Quart(__name__)
 
 @app.route("/", methods=["POST"])
-def webhook():
+async def webhook():
     webhook_id = request.args.get("webhook_id")
     webhook_auth = request.args.get("webhook_auth")
 
@@ -17,7 +17,7 @@ def webhook():
     if color is None:
         color = 222934
 
-    data = request.get_json()
+    data = await request.get_json()
     try:
         if data["action"] == "created":
             sponsorship = data["sponsorship"]
@@ -42,15 +42,18 @@ def webhook():
                     }
                 ]
             }
-            requests.post(f"https://discord.com/api/webhooks/{webhook_id}/{webhook_auth}", json=webhook_send_json)
-            return "Successfully sent webhook to discord!"
+            async with aiohttp.ClientSession() as session:
+                await session.post(f"https://discordapp.com/api/webhooks/{webhook_id}/{webhook_auth}", data=webhook_send_json)
+                return "Successfully sent webhook to discord!"
     except Exception as e:
         if data["hook"]["type"] == "SponsorsListing":
             send_json = {
                 "content": "Github sponsor webhooks have now been added."
             }
-            requests.post(f"https://discord.com/api/webhooks/{webhook_id}/{webhook_auth}", json=send_json)
-            return "Setup complete! You will now receive notifications when someone supports you on github!"
+            async with aiohttp.ClientSession() as session:
+                test = await session.post(f"https://discordapp.com/api/webhooks/{webhook_id}/{webhook_auth}", data=send_json)
+                print(test)
+                return "Setup complete! You will now receive notifications when someone supports you on github!"
         else:
             return e
 
@@ -61,7 +64,7 @@ def health_check():
 
 if __name__ == "__main__":
     config = Config.from_mapping(
-            bind="0.0.0.0:80",
-            statsd_host="0.0.0.0:80",
+            bind="0.0.0.0:5053",
+            statsd_host="0.0.0.0:5053",
         )
     asyncio.run(serve(app, config))
