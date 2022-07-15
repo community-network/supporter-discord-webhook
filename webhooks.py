@@ -1,5 +1,4 @@
 import asyncio
-import json
 import aiohttp
 from quart import Quart
 from hypercorn.config import Config
@@ -52,7 +51,6 @@ async def webhook():
             }
             async with aiohttp.ClientSession() as session:
                 test = await session.post(f"https://discordapp.com/api/webhooks/{webhook_id}/{webhook_auth}", data=send_json)
-                print(test)
                 return "Setup complete! You will now receive notifications when someone supports you on github!"
         else:
             return e
