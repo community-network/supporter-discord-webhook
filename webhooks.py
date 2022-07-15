@@ -62,7 +62,7 @@ def health_check():
 
 if __name__ == "__main__":
     config = Config.from_mapping(
-            bind="0.0.0.0:5053",
-            statsd_host="0.0.0.0:5053",
+            bind="0.0.0.0:80",
+            statsd_host="0.0.0.0:80",
         )
     asyncio.run(serve(app, config))
