@@ -8,7 +8,7 @@ from quart import request
 
 app = Quart(__name__)
 
-@app.route("/webhook", methods=["POST"])
+@app.route("/", methods=["POST"])
 def webhook():
     webhook_id = request.args.get("webhook_id")
     webhook_auth = request.args.get("webhook_auth")
@@ -55,7 +55,7 @@ def webhook():
             return e
 
 
-@app.route("/")
+@app.route("/healthcheck")
 def health_check():
     return {"status": "ok"}
 
