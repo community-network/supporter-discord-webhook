@@ -12,7 +12,7 @@ To get your domain, open up discord and go to the channel you want your webhook 
 Customize this as much as you want and then hit `Copy Webhook URL`. 
 This should look something like this `https://discord.com/api/webhooks/WEBHOOK_ID/WEBHOOK_AUTH`.
 In the example domain I've used `WEBHOOK_ID` and `WEBHOOK_AUTH`. 
-Copy these from your discord webhook and place them in this domain `https://supporter_webhook.gametools.network?webhook_id=WEBHOOK_ID&webhook_auth=WEBHOOK_AUTH`. 
+Copy these from your discord webhook and place them in this domain `https://supporter-webhook.gametools.network?webhook_id=WEBHOOK_ID&webhook_auth=WEBHOOK_AUTH`. 
 Congratulations, you now have a webhook that will work for discord. 
 You can also add a variable `color` to the domain to get a custom colour on your embed. This must be in decimal so convert from hex to decimal. 
 
