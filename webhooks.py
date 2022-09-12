@@ -22,6 +22,7 @@ async def webhook():
             sponsorship = data["sponsorship"]
             tier_description = sponsorship["tier"]["description"]
             username = sponsorship["sponsor"]["login"]
+            privacy = sponsorship["privacy_level"]
             price_in_dollars = int(sponsorship["tier"]["monthly_price_in_cents"])/100
             supporter_url_html = sponsorship["sponsor"]["html_url"]
             supporter_icon = sponsorship["sponsor"]["avatar_url"]
@@ -31,9 +32,9 @@ async def webhook():
                         "description": f"{tier_description}",
                         "color": color,
                         "author": {
-                            "name": f"{username} just sponsored for ${price_in_dollars}",
-                            "url": f"{supporter_url_html}",
-                            "icon_url": f"{supporter_icon}"
+                            "name": f"{username if privacy == 'public' else 'Anonymous'} just sponsored for ${price_in_dollars}",
+                            "url": f"{supporter_url_html if privacy == 'public' else 'https://github.com/community-network'}",
+                            "icon_url": f"{supporter_icon if privacy == 'public' else 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png'}"
                         },
                         "footer": {
                             "text": "Thank you for supporting us, it really helps out"
